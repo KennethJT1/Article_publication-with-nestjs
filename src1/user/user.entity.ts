@@ -8,11 +8,13 @@ import {
   JoinTable,
 } from 'typeorm';
 import { hash } from 'bcrypt';
+import { ArticleEntity } from 'src1/article/article.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 @Entity({ name: 'users' }) // this is the name it will be called in db
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
+  // id: number;
   id: string = uuidv4();
 
   @Column()
@@ -37,11 +39,11 @@ export class UserEntity {
     }
   }
 
-  // //Relation btw two entities
-  // @OneToMany(() => ArticleEntity, (article) => article.author)
-  // articles: ArticleEntity[];
+  //Relation btw two entities
+  @OneToMany(() => ArticleEntity, (article) => article.author)
+  articles: ArticleEntity[];
 
-  // @ManyToMany(() => ArticleEntity)
-  // @JoinTable()
-  // favorites: ArticleEntity[];
+  @ManyToMany(() => ArticleEntity)
+  @JoinTable()
+  favorites: ArticleEntity[];
 }

@@ -1,4 +1,4 @@
-import { UserEntity } from '@app/user/user.entity';
+import { UserEntity } from 'src1/user/user.entity';
 import {
   BeforeUpdate,
   Column,

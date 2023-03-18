@@ -1,7 +1,7 @@
-import { BackendValidationPipe } from '@app/shared/pipes/backendValidation.pipes';
-import { User } from '@app/user/decorators/user.decorator';
-import { AuthGuard } from '@app/user/guards/auth.guard';
-import { UserEntity } from '@app/user/user.entity';
+import { BackendValidationPipe } from 'src1/shared/pipes/backendValidation.pipes';
+import { User } from 'src1/user/decorators/user.decorator';
+import { AuthGuard } from 'src1/user/guards/auth.guard';
+import { UserEntity } from 'src1/user/user.entity';
 import {
   Body,
   Controller,
@@ -14,6 +14,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { FindOneOptions } from 'typeorm';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dtos/createArticle.dto';
 import { ArticleResponseInterface } from './types/articleResponse.interface';
@@ -23,13 +24,13 @@ import { ArticlesResponseInterface } from './types/articlesResponse.interface';
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
-  @Get()
-  async findAll(
-    @User('id') currentUserId: number,
-    @Query() query: any,
-  ): Promise<ArticlesResponseInterface> {
-    return this.articleService.findAll(currentUserId, query);
-  }
+  // @Get()
+  // async findAll(
+  //   @User('id') currentUserId: number,
+  //   @Query() query: any,
+  // ): Promise<ArticlesResponseInterface> {
+  //   return this.articleService.findAll(currentUserId, query);
+  // }
 
   @Get('feed')
   @UseGuards(AuthGuard)
@@ -90,7 +91,7 @@ export class ArticleController {
   @Post(':slug/favorite')
   @UseGuards(AuthGuard)
   async addArticleToFavorites(
-    @User('id') currentUserId: number,
+    @User('id') currentUserId: FindOneOptions<UserEntity>,
     @Param('slug') slug: string,
   ): Promise<ArticleResponseInterface> {
     const article = await this.articleService.addArticleToFavorites(
@@ -103,7 +104,7 @@ export class ArticleController {
   @Delete(':slug/favorite')
   @UseGuards(AuthGuard)
   async deleteArticleFromFavorites(
-    @User('id') currentUserId: number,
+    @User('id') currentUserId: FindOneOptions<UserEntity>,
     @Param('slug') slug: string,
   ): Promise<ArticleResponseInterface> {
     const article = await this.articleService.deleteArticleFromFavorites(

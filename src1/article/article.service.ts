@@ -1,13 +1,18 @@
-import { UserEntity } from '@app/user/user.entity';
+import { UserEntity } from 'src1/user/user.entity';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, getRepository, Repository } from 'typeorm';
+import {
+  DeleteResult,
+  FindOneOptions,
+  getRepository,
+  Repository,
+} from 'typeorm';
 import { ArticleEntity } from './article.entity';
 import { CreateArticleDto } from './dtos/createArticle.dto';
 import { ArticleResponseInterface } from './types/articleResponse.interface';
 import slugify from 'slugify';
 import { ArticlesResponseInterface } from './types/articlesResponse.interface';
-import { FollowEntity } from '@app/profile/follow.entity';
+import { FollowEntity } from 'src1/profile/follow.entity';
 
 @Injectable()
 export class ArticleService {
@@ -21,81 +26,83 @@ export class ArticleService {
   ) {}
 
   //GET ARRAYS OF ARTICLES
-  async findAll(
-    currentUserId: number,
-    query: any,
-  ): Promise<ArticlesResponseInterface> {
-    const queryBuilder = getRepository(ArticleEntity)
-      .createQueryBuilder('articles')
-      .leftJoinAndSelect('articles.author', 'author');
+  // async findAll(
+  //   currentUserId: string,
+  //   query: any,
+  // ): Promise<ArticlesResponseInterface> {
+  //   const queryBuilder = getRepository(ArticleEntity)
+  //     .createQueryBuilder('articles')
+  //     .leftJoinAndSelect('articles.author', 'author');
 
-    //sorting articles by tag
-    if (query.tag) {
-      queryBuilder.andWhere('articles.tagList LIKE: tag', {
-        tag: `%${query.tag}`,
-      });
-    }
+  //   //sorting articles by tag
+  //   if (query.tag) {
+  //     queryBuilder.andWhere('articles.tagList LIKE: tag', {
+  //       tag: `%${query.tag}`,
+  //     });
+  //   }
 
-    //sorting articles by author
-    if (query.author) {
-      //to ensure we have the author field
-      const author = await this.userRepository.findOne({
-        where: { username: query.author },
-      });
-      queryBuilder.andWhere('articles.authorId =:id', {
-        id: author.id,
-      });
-    }
+  //   //sorting articles by author
+  //   if (query.author) {
+  //     //to ensure we have the author field
+  //     const author = await this.userRepository.findOne({
+  //       where: { username: query.author },
+  //     });
+  //     queryBuilder.andWhere('articles.authorId =:id', {
+  //       id: author.id,
+  //     });
+  //   }
 
-    //Sorting articles by favorite
-    if (query.favorited) {
-      const author = await this.userRepository.findOne(
-        { username: query.favorited },
-        {
-          relations: ['favorites'],
-        },
-      );
+  //   //Sorting articles by favorite
+  //   if (query.favorited) {
+  //     const author = await this.userRepository.findOne(
+  //       { username: query.favorited },
+  //       // {
+  //       //   relations: ['favorites'],
+  //       // },
+  //     );
 
-      const ids = author.favorites.map((el) => el.id);
-      if (ids.length > 0) {
-        queryBuilder.andWhere('articles.authorId IN (:...ids)', { ids });
-      } else {
-        queryBuilder.andWhere('1=0');
-      }
-    }
+  //     const ids = author.favorites.map((el) => el.id);
+  //     if (ids.length > 0) {
+  //       queryBuilder.andWhere('articles.authorId IN (:...ids)', { ids });
+  //     } else {
+  //       queryBuilder.andWhere('1=0');
+  //     }
+  //   }
 
-    //Sorting articles by descending order
-    queryBuilder.orderBy('articles.createdAt', 'DESC');
+  //   //Sorting articles by descending order
+  //   queryBuilder.orderBy('articles.createdAt', 'DESC');
 
-    const articlesCount = await queryBuilder.getCount();
+  //   const articlesCount = await queryBuilder.getCount();
 
-    if (query.limit) {
-      queryBuilder.limit(query.limit);
-    }
+  //   if (query.limit) {
+  //     queryBuilder.limit(query.limit);
+  //   }
 
-    if (query.offset) {
-      queryBuilder.offset(query.offset);
-    }
+  //   if (query.offset) {
+  //     queryBuilder.offset(query.offset);
+  //   }
 
-    //Get array of favorited and normalized it
-    let favoriteIds: number[] = [];
+  //   //Get array of favorited and normalized it
+  //   let favoriteIds: number[] = [];
 
-    if (currentUserId) {
-      const currentUser = await this.userRepository.findOne(currentUserId, {
-        relations: ['favorites'],
-      });
+  //   if (currentUserId) {
+  //     const currentUser = await this.userRepository.findOne(currentUserId,
+  //       // {
+  //       // relations: ['favorites'],
+  //       // }
+  //     );
 
-      favoriteIds = currentUser.favorites.map((favorite) => favorite.id);
-    }
+  //     favoriteIds = currentUser.favorites.map((favorite) => favorite.id);
+  //   }
 
-    const articles = await queryBuilder.getMany();
-    const articleWithFavorited = articles.map((article) => {
-      const favorited = favoriteIds.includes(article.id);
-      return { ...article, favorited };
-    });
+  //   const articles = await queryBuilder.getMany();
+  //   const articleWithFavorited = articles.map((article) => {
+  //     const favorited = favoriteIds.includes(article.id);
+  //     return { ...article, favorited };
+  //   });
 
-    return { articles: articleWithFavorited, articlesCount };
-  }
+  //   return { articles: articleWithFavorited, articlesCount };
+  // }
 
   //GET FEED
   async getFeed(
@@ -149,7 +156,7 @@ export class ArticleService {
     }
 
     article.slug = this.getSlug(createArticleDto.title);
-    article.author = currentUser;
+    // article.author = currentUser;
 
     return this.articleRepository.save(article);
   }
@@ -172,9 +179,9 @@ export class ArticleService {
     }
 
     //Check if its the author exist
-    if (article.author.id !== currentUserId) {
-      throw new HttpException('You are not an author', HttpStatus.FORBIDDEN);
-    }
+    // if (article.author.id !== currentUserId) {
+    //   throw new HttpException('You are not an author', HttpStatus.FORBIDDEN);
+    // }
     return await this.articleRepository.delete({ slug });
   }
 
@@ -192,9 +199,9 @@ export class ArticleService {
     }
 
     //Check if its the author exist
-    if (article.author.id !== currentUserId) {
-      throw new HttpException('You are not an author', HttpStatus.FORBIDDEN);
-    }
+    // if (article.author.id !== currentUserId) {
+    //   throw new HttpException('You are not an author', HttpStatus.FORBIDDEN);
+    // }
 
     Object.assign(article, updateArticleDto);
     return await this.articleRepository.save(article);
@@ -203,12 +210,15 @@ export class ArticleService {
   //Add likes
   async addArticleToFavorites(
     slug: string,
-    userId: number,
+    userId: FindOneOptions<UserEntity>,
   ): Promise<ArticleEntity> {
     const article = await this.findBySlug(slug);
-    const user = await this.userRepository.findOne(userId, {
-      relations: ['favorites'],
-    });
+    const user = await this.userRepository.findOne(
+      userId,
+      // {
+      // relations: ['favorites'],
+      // }
+    );
     ``;
     // const user =await this.userRepository.findOne(userId, {
     //   relations: ['favorites'],
@@ -232,12 +242,15 @@ export class ArticleService {
   //Dislike an article
   async deleteArticleFromFavorites(
     slug: string,
-    userId: number,
+    userId: FindOneOptions<UserEntity>,
   ): Promise<ArticleEntity> {
     const article = await this.findBySlug(slug);
-    const user = await this.userRepository.findOne(userId, {
-      relations: ['favorites'],
-    });
+    const user = await this.userRepository.findOne(
+      userId,
+      // {
+      // relations: ['favorites'],
+      // }
+    );
 
     const articleIndex = user.favorites.findIndex(
       (articleInFavorite) => articleInFavorite.id === article.id,

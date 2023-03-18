@@ -1,4 +1,4 @@
 import { UserEntity } from '../user.entity';
 
-export type UserType = Omit<UserEntity, 'hasdPassword'>;
+export type UserType = Omit<UserEntity, 'hashPassword'>;
  

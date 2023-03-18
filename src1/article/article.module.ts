@@ -1,5 +1,5 @@
-import { FollowEntity } from '@app/profile/follow.entity';
-import { UserEntity } from '@app/user/user.entity';
+import { FollowEntity } from 'src1/profile/follow.entity';
+import { UserEntity } from 'src1/user/user.entity';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ArticleController } from './article.controller';
