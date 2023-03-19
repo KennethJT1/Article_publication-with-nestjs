@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { hash } from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import { ArticleEntity } from '@app/article/article.entity';
 
 @Entity({ name: 'users' }) // this is the name it will be called in db
 export class UserEntity {
@@ -37,11 +38,11 @@ export class UserEntity {
     }
   }
 
-  // //Relation btw two entities
-  // @OneToMany(() => ArticleEntity, (article) => article.author)
-  // articles: ArticleEntity[];
+  //Relation btw two entities
+  @OneToMany(() => ArticleEntity, (article) => article.author)
+  articles: ArticleEntity[];
 
-  // @ManyToMany(() => ArticleEntity)
-  // @JoinTable()
-  // favorites: ArticleEntity[];
+  @ManyToMany(() => ArticleEntity)
+  @JoinTable()
+  favorites: ArticleEntity[];
 }
