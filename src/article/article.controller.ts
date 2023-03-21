@@ -1,3 +1,4 @@
+import { BackendValidationPipe } from '@app/shared/pipes/backendValidation.pipes';
 import { User } from '@app/user/decorators/user.decorator';
 import { AuthGuard } from '@app/user/guards/auth.guard';
 import { UserEntity } from '@app/user/user.entity';
@@ -25,7 +26,7 @@ export class ArticleController {
 
   @Post()
   @UseGuards(AuthGuard)
-  //   @UsePipes(new BackendValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async createArticle(
     @User() currentUser: UserEntity,
     @Body('article') createArticleDto: CreateArticleDto,
@@ -56,8 +57,7 @@ export class ArticleController {
 
   @Put(':slug')
   @UseGuards(AuthGuard)
-  //   @UsePipes(new BackendValidationPipe())
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async updateArticle(
     @User('id') currentUserId: string,
     @Param('slug') slug: string,
@@ -103,5 +103,14 @@ export class ArticleController {
       currentUserId,
     );
     return this.articleService.buildArticleResponse(article);
+  }
+
+  @Get('feed')
+  @UseGuards(AuthGuard)
+  async getfeed(
+    @User('id') currentUserId: string,
+    @Query() query: any,
+  ): Promise<ArticlesResponseInterface> {
+    return await this.articleService.getFeed(currentUserId, query);
   }
 }
